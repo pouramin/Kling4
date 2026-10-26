@@ -19,7 +19,7 @@ This repository is a project page under the existing `pouramin.dev` GitHub Pages
 
 The prompts are the creator's submitted text with spacing/line breaks normalized for readability. Duration labels reflect the brief, not an independently inspected video file.
 
-**Asset 02 note:** Higgsfield currently resolves `https://higgsfield.ai/s/ZVp_sL-LBTw` to a share with `utm_content=image`. This page retains the original link rather than pretending it is a playable video.
+**Asset 02 update:** The creator supplied a direct `.mp4` URL for this asset, so it now appears as a playable video despite the source share page previously advertising an image content type.
 
 ## Publish the site
 
@@ -50,7 +50,9 @@ Avoid committing large master video files to GitHub; GitHub is a source reposito
 - All four prompts, share links, card descriptions and poster images: `project-data.js`
 - Main layout, branding, styling, section copy: `index.html`
 - Optional tutorial video URL: `youtubeWalkthroughUrl` is reserved for later usage; there is no tutorial player in the current version.
-- All current Higgsfield links open in a new tab. Direct embedding is not claimed to work.
+- Each of the four experiments can play inline from the direct CloudFront MP4 URL supplied by the creator. Click the play control in each thumbnail to load it. The original Higgsfield source link remains separately accessible.
+- If the video CDN is unavailable or prevents browser playback, the site shows a fallback link to the original Higgsfield share page.
+- To replace an inline media URL, edit the `directVideoUrl` field of the corresponding entry in `project-data.js`.
 
 ## Technical details
 
