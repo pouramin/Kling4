@@ -2,7 +2,7 @@
 window.KLING_PROJECT = {
   "title": "The Final Hand",
   "siteName": "TunnelLab",
-  "finalVideoUrl": "",
+  "finalVideoUrl": "https://youtu.be/IHDs6N2D9Rc",
   "youtubeWalkthroughUrl": "",
   "sourceRepo": "https://github.com/pouramin/Kling4",
   "results": [
