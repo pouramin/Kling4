@@ -233,7 +233,7 @@ pre.prompt-text{color:#47536a;background:#f7f8fb;border-color:#e9edf3}
     const icon=a=>{const n=el("span","",a);n.setAttribute("aria-hidden","true");return n};
     const buildCard=(v)=>{
       const article=el("article","result-card");article.id="asset-"+v.id;
-      const a=el("a","result-thumb");a.href=v.link;a.target="_blank";a.rel="noopener noreferrer";a.setAttribute("aria-label","View "+v.title+" on Higgsfield");
+      const a=el(v.kind==="video"?"div":"a","result-thumb");if(v.kind!=="video"){a.href=v.link;a.target="_blank";a.rel="noopener noreferrer";a.setAttribute("aria-label","View "+v.title+" on Higgsfield");}
       const img=el("img");img.src=v.thumb;img.alt="Preview of "+v.title;img.loading="lazy";img.decoding="async";img.addEventListener("error",()=>img.style.opacity="0");a.append(img);
       a.append(el("span","thumb-number",v.number),el("span","thumb-type",v.kind==="image"?"Image share":"Video share"));
       const bottom=el("span","thumb-cta");bottom.append(el("span","", "Open on Higgsfield"),el("span","playbubble","↗"));a.append(bottom);article.append(a);
@@ -254,31 +254,48 @@ pre.prompt-text{color:#47536a;background:#f7f8fb;border-color:#e9edf3}
     };
     data.results.forEach(v=>{$("resultGrid").append(buildCard(v));$("promptGrid").append(buildPrompt(v))});
 
-    // Higgsfield has share pages rather than a documented embed API.
-    // These three CDN preview paths are inferred, not independently verified.
-    // If a clip cannot load, present the original link immediately.
-    const previews={
-      "arrival":"https://cdn.higgsfield.ai/user_3K2huQszNca6X6blrXFFGrO0ejQ/hf_20261026_183634_46cb9735-1812-4b77-ba2a-35665d204265_min.mp4",
-      "terrace":"https://cdn.higgsfield.ai/user_3K2huQszNca6X6blrXFFGrO0ejQ/hf_20261026_194642_36b7f981-f4cf-418d-80d4-74fb46aadfec_min.mp4",
-      "departure":"https://cdn.higgsfield.ai/user_3K2huQszNca6X6blrXFFGrO0ejQ/hf_20261026_193015_9be98e50-94a8-4f6f-8c9f-bb12be02fc61_min.mp4"
-    };
+
+    // Play the creator-supplied CloudFront MP4s directly on this page.
+    // Keep video sources in project-data.js; no source URL is guessed.
     function installVideoPlayback(){
       data.results.forEach(v=>{
-        if(v.kind!=="video")return;
-        const surface=document.querySelector("#asset-"+v.id+" .result-thumb");if(!surface)return;
-        const button=el("button","video-preview-button");button.type="button";button.setAttribute("aria-label","Play "+v.title+" on this page");
-        button.append(el("span","playbubble","▶"));surface.append(button);
-        const showFallback=()=>{
-          const fall=el("div","video-fallback");
-          const p=el("div");p.append(el("strong","", "Inline source unavailable"),el("p","", "This Higgsfield clip could not be streamed here."));
-          const link=el("a","","Open original on Higgsfield ↗");link.href=v.link;link.target="_blank";link.rel="noopener noreferrer";p.append(link);fall.append(p);surface.append(fall);
+        if(v.kind!=="video" || !v.directVideoUrl)return;
+        const surface=document.querySelector("#asset-"+v.id+" .result-thumb");
+        if(!surface)return;
+        const trigger=el("button","video-preview-button");
+        trigger.type="button";
+        trigger.setAttribute("aria-label","Play "+v.title+" here");
+        trigger.append(el("span","playbubble","▶"));
+        surface.append(trigger);
+        const originalLink=()=>{
+          const a=el("a","","Watch the original on Higgsfield ↗");
+          a.href=v.link;a.target="_blank";a.rel="noopener noreferrer";
+          return a;
         };
-        button.addEventListener("click",event=>{
-          event.preventDefault();event.stopPropagation();
-          button.remove();const video=el("video","inline-player");video.controls=true;video.autoplay=true;video.playsInline=true;video.preload="metadata";video.poster=v.thumb;
-          video.src=(v.directVideoUrl||previews[v.id]||"");
-          let alreadyFailed=false;video.addEventListener("error",()=>{if(alreadyFailed)return;alreadyFailed=true;video.remove();showFallback()});
-          surface.append(video);video.play().catch(()=>{video.controls=true});
+        trigger.addEventListener("click",()=>{
+          trigger.remove();
+          const video=el("video","inline-player");
+          video.controls=true;
+          video.playsInline=true;
+          video.preload="metadata";
+          video.poster=v.thumb;
+          video.src=v.directVideoUrl;
+          video.setAttribute("aria-label",v.title);
+          let failed=false;
+          video.addEventListener("error",()=>{
+            if(failed)return;failed=true;video.remove();
+            const fallback=el("div","video-fallback");
+            const wrapper=el("div");
+            wrapper.append(el("strong","","The original MP4 is unavailable here."));
+            wrapper.append(el("p","","Try the Higgsfield share link instead."));
+            wrapper.append(originalLink());
+            fallback.append(wrapper);surface.append(fallback);
+          },{once:true});
+          surface.append(video);
+          video.play().catch(()=>{
+            // Some browsers require a second user action; native controls remain visible.
+            video.controls=true;
+          });
         });
       });
     }
