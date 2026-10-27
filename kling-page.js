@@ -127,7 +127,7 @@ const toggle=byId("langToggle");
 function applyLanguage(){
  const persian=language==="fa";document.documentElement.lang=persian?"fa":"en";
  document.documentElement.dir=persian?"rtl":"ltr";
- document.title=persian?"فیلم جاسوسی با کلینگ 4.0 — تانل‌لب":"The Final Hand — Kling 4.0 | TunnelLab";
+ document.title=persian?"ساخت فیلم با کلینگ 4.0 — تانل‌لب":"The Final Hand — Kling 4.0 | TunnelLab";
  toggle.textContent=persian?"English / EN":"فارسی / FA";
  document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=tr(el.dataset.i18n));
  document.querySelectorAll("[data-title]").forEach(el=>el.textContent=names[el.dataset.title]?.[language]||el.textContent);
